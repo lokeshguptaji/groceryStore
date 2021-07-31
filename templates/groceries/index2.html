@@ -1,0 +1,152 @@
+{% extends 'groceries/basic.html' %}
+{% block title %}{% endblock title %}
+
+{% block body %}
+{% load static %}
+
+<div class="container-fluid my-4">
+  <div class="row">
+    <div class="col-3">
+      {% for cat in category  %}
+      <a href="/category/{{cat.id}}" class="list-group-item list-group-item-action bg-light">{{cat.name}}</a>
+      {% endfor %}
+    </div>
+    {% for catp in catprod  %}
+    <div class="col-9">
+          <section class="product">
+            <div class="container">
+              <div class="row py-2">
+                <div class="col-lg-5 m-auto text-center">
+                  <h1>{{catp.name}}</h1>
+                </div>
+              </div>
+              
+              <div class="row">
+              {% for prod in prods %}
+              <div class="col-lg-3 text-center">
+                <div class="card border-0 bg-light ">
+                  <img src='/media/{{prod.image}}' class="img-fluid" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title" id="namepr{{prod.id}}">{{prod.name}}</h5>
+                    <p class="card-text">Some quick </p>
+                    <span id="divpr{{prod.id}}" class="divpr">
+                    <button id="pr{{prod.id}}" class="btn btn-primary cart">Add To Cart</button></span>
+                  </div>
+                </div>
+                {% comment %} {% if forloop.counter|divisibleby:4 and forloop.counter > 0 and not forloop.last %}
+      </div><div class="row">
+        {% endif %} {% endcomment %}
+        </div>
+              {% endfor %}
+              {% comment %} <div class="col-lg-3 text-center">
+                <div class="card border-0 bg-light ">
+                  <img src="{% static 'groceries/images/2.png' %}" class="img-fluid" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick </p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 text-center">
+                <div class="card border-0 bg-light ">
+                  <img src="{% static 'groceries/images/2.png' %}" class="img-fluid" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick </p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-3 text-center">
+                <div class="card border-0 bg-light ">
+                  <img src="{% static 'groceries/images/2.png' %}" class="img-fluid" alt="...">
+                  <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick </p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                  </div>
+                </div>
+              </div> {% endcomment %}
+              </div>
+            </div>
+          </section>
+          {% endfor %}
+    </div>
+  </div>
+
+
+  {% endblock body %}
+
+  {% block js %}
+  <script>
+  
+ 
+  if(localStorage.getItem('cart')==null){
+    var cart={};
+  }
+
+  else{
+    cart=JSON.parse(localStorage.getItem('cart'));
+    document.getElementById('cart').innerHTML=Object.keys(cart).length;
+    updatecart(cart);
+  }
+
+  $('.cart').click(function(){
+    var idstr=this.id.toString();
+    if(cart[idstr]!=undefined){
+    cart[idstr]=cart[idstr]+1;
+  }
+
+  else{
+    cart[idstr]=1;
+  }
+  updatecart(cart)
+  // localStorage.setItem('cart',JSON.stringify(cart));
+  // document.getElementById('cart').innerHTML=Object.keys(cart).length;
+
+  })
+  $('#popcart').popover();
+  updatepopover(cart);
+  function updatepopover(cart){
+  var popstr="";
+  popstr=popstr+"<h5>Cart for your items in my shopping cart</h5>";
+  var i=1;
+  for(var item in cart){
+    popstr=popstr+"<b>" + i + "</b>"
+    popstr=popstr+'-'+document.getElementById("name"+item).innerHTML+ "....Qty: " + cart[item]+ '<br>';
+    i=i+1;
+  }
+  popstr=popstr+"</div>"
+  document.getElementById("popcart").setAttribute('data-content', popstr);
+  $('#popcart').popover();
+  
+}
+function updatecart(cart){
+  // var sum=0;
+  for (var item in cart){
+    // sum=sum+cart[item];
+    document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "' class='btn btn-primary minus'>-</button> <span id='val" + item + "'>" + cart[item] + "</span> <button id='plus" + item + "' class='btn btn-primary plus'> + </button>";
+  }
+  localStorage.setItem('cart', JSON.stringify(cart));
+  document.getElementById('cart').innerHTML = Object.keys(cart).length;
+  updatepopover(cart);
+
+}
+//if minus or plus button is clicked
+$('.divpr').on("click","button.minus",function(){
+  a=this.id.slice(7,)
+  cart['pr'+a]=cart['pr'+a]-1;
+  cart['pr'+a]=Math.max(0,cart['pr'+a])
+  document.getElementById('valpr'+a).innerHTML=cart['pr'+a];
+  updatecart(cart)
+});
+  
+$('.divpr').on("click","button.plus",function(){
+  a=this.id.slice(6,)
+  cart['pr'+a]=cart['pr'+a]+1;
+  document.getElementById('valpr'+a).innerHTML=cart['pr'+a];
+  updatecart(cart)
+});
+  </script>
+  {% endblock js %}
